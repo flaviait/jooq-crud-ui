@@ -1,0 +1,8 @@
+/build
+/gradle
+/.idea
+/.gradle
+/*.iml
+/*.db
+/src/main/java/de/flaviait/crud/jooq
+node_modules

@@ -1,0 +1,24 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="//rawgit.com/marmelab/ng-admin/master/build/ng-admin.min.css">
+  <title>jOOQ CRUD Demo</title>
+</head>
+<body>
+  <ui-view></ui-view>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.0/es6-shim.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.24/system-polyfills.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.24/system.js"></script>
+  <script src="//rawgit.com/marmelab/ng-admin/master/build/ng-admin.min.js"></script>
+  <script src="config.js"></script>
+  <script>
+    System.import('app.js').then(function () {
+      angular.element(document).ready(function () {
+        angular.bootstrap(document, ['app']);
+      });
+    }, console.error.bind(console));
+  </script>
+</body>
+</html>

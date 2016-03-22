@@ -1,0 +1,107 @@
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "spring-boot"
+apply plugin: "org.flywaydb.flyway"
+
+ext {
+  db = [
+    url: "jdbc:h2:./jooq-crud-ui",
+    user: "sa",
+    password: ""
+  ]
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+buildscript {
+  ext {
+    springBootVersion = "1.3.1.RELEASE"
+  }
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    classpath "org.springframework:springloaded:1.2.0.RELEASE"
+    classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"
+    classpath "org.jooq:jooq-codegen:3.7.3"
+    classpath "com.h2database:h2:1.4.191"
+  }
+}
+
+jar {
+  baseName = "jooq-crud-ui"
+}
+
+repositories {
+  mavenCentral()
+}
+
+idea {
+  module {
+    inheritOutputDirs = false
+    outputDir = file("$buildDir/classes/main/")
+  }
+}
+
+dependencies {
+  compile("org.springframework.boot:spring-boot-starter-jooq")
+  compile("org.springframework.boot:spring-boot-starter-web")
+  compile("org.flywaydb:flyway-core:3.2.1")
+  runtime("com.h2database:h2:1.4.191")
+}
+
+flyway {
+  url = db.url
+  user = db.user
+  password = db.password
+}
+
+// Remove dependencies because of jooq
+project.afterEvaluate {
+  flywayClean.dependsOn -= testClasses
+  flywayMigrate.dependsOn = [processResources, processTestResources]
+}
+
+// Generate jooq classes
+task generateJooq << {
+  def writer = new StringWriter()
+  new groovy.xml.MarkupBuilder(writer)
+      .configuration("xmlns": "http://www.jooq.org/xsd/jooq-codegen-3.7.0.xsd") {
+    jdbc() {
+      driver "org.h2.Driver"
+      url db.url
+      user db.user
+      password db.password
+    }
+    generator() {
+      database() {
+        excludes("schema_version")
+        inputSchema("PUBLIC")
+      }
+      generate() {
+        // see http://www.jooq.org/doc/3.7/manual/code-generation/codegen-advanced/
+        globalObjectReferences false
+        records true
+        pojos true
+      }
+      target() {
+        packageName("de.flaviait.crud.jooq")
+        directory("src/main/java")
+      }
+    }
+  }
+
+  org.jooq.util.GenerationTool.generate(
+      javax.xml.bind.JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class)
+  )
+}
+
+generateJooq.dependsOn += flywayMigrate
+compileJava.dependsOn += generateJooq
+
+task wrapper(type: Wrapper) {
+  gradleVersion = "2.10"
+}
