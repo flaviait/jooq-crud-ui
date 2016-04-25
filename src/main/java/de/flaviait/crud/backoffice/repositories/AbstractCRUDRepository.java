@@ -1,11 +1,11 @@
 package de.flaviait.crud.backoffice.repositories;
 
+import de.flaviait.crud.backoffice.models.IdentifiableDTO;
 import org.jooq.*;
 
-import java.io.Serializable;
 import java.util.List;
 
-public abstract class AbstractCRUDRepository<R extends UpdatableRecord, P extends Serializable> {
+public abstract class AbstractCRUDRepository<R extends UpdatableRecord, P extends IdentifiableDTO> {
 
   protected final DSLContext dslContext;
   private final Table<R> table;

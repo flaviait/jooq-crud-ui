@@ -1,6 +1,7 @@
 package de.flaviait.crud.backoffice.controllers;
 
-import de.flaviait.crud.backoffice.models.BlogPost;
+import de.flaviait.crud.backoffice.models.BlogPostDTO;
+import de.flaviait.crud.backoffice.repositories.BlogPostReaderRepository;
 import de.flaviait.crud.backoffice.repositories.BlogPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,48 +11,54 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/crud/blogPosts")
-public class BlogPostController extends AbstractBackofficeController<BlogPost> {
+public class BlogPostController extends AbstractCRUDBackofficeController<BlogPostDTO> {
+
+  private final BlogPostReaderRepository blogPostReaderRepository;
 
   @Autowired
-  public BlogPostController(BlogPostRepository blogPostRepository) {
+  public BlogPostController(BlogPostRepository blogPostRepository, BlogPostReaderRepository blogPostReaderRepository) {
     super(blogPostRepository);
+    this.blogPostReaderRepository = blogPostReaderRepository;
   }
 
   @Override
-  @RequestMapping(value = "", method = RequestMethod.GET)
-  @ResponseBody
-  public List<BlogPost> page(@RequestParam(value = "_page", defaultValue = "1") Integer page,
-                           @RequestParam(value = "_perPage", defaultValue = "30") Integer pageSize,
-                           @RequestParam(value = "_sortDir", defaultValue = "DESC") String sortOrder,
-                           @RequestParam(value = "_sortField", defaultValue = "id") String sortField) {
-    return super.page(page, pageSize, sortOrder, sortField);
+  public List<BlogPostDTO> page(@RequestParam(value = "_page", defaultValue = "1") Integer page,
+                                @RequestParam(value = "_perPage", defaultValue = "30") Integer pageSize,
+                                @RequestParam(value = "_sortDir", defaultValue = "DESC") String sortOrder,
+                                @RequestParam(value = "_sortField", defaultValue = "id") String sortField) {
+    List<BlogPostDTO> dtos = super.page(page, pageSize, sortOrder, sortField);
+    dtos.forEach(this::populateReaders);
+    return dtos;
   }
 
   @Override
-  @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  @ResponseBody
-  public BlogPost get(@PathVariable("id") Long id) {
-    return super.get(id);
+  public BlogPostDTO get(@PathVariable("id") Long id) {
+    return populateReaders(super.get(id));
   }
 
   @Override
-  @RequestMapping(value = "", method = RequestMethod.POST)
-  @ResponseBody
-  public BlogPost create(@RequestBody BlogPost blogPost) {
-    return super.create(blogPost);
+  public ResponseEntity<Void> create(@RequestBody BlogPostDTO dto, @RequestHeader String host) {
+    BlogPostDTO persisted = repository.create(dto);
+    blogPostReaderRepository.updateReaders(persisted.getId(), dto.getReaders());
+    return buildCreateResponse(host, persisted);
   }
 
   @Override
-  @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-  @ResponseBody
-  public BlogPost update(@PathVariable Long id, @RequestBody BlogPost blogPost) {
-    return super.update(id, blogPost);
+  public ResponseEntity<Void> update(@PathVariable("id") Long id, @RequestBody BlogPostDTO dto) {
+    repository.update(id, dto);
+    blogPostReaderRepository.updateReaders(id, dto.getReaders());
+    return buildUpdateResponse();
   }
 
   @Override
-  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
-    return super.delete(id);
+    repository.delete(id);
+    blogPostReaderRepository.deleteReaders(id);
+    return buildDeleteResponse();
   }
 
+  private BlogPostDTO populateReaders(BlogPostDTO dto) {
+    dto.setReaders(blogPostReaderRepository.getReaders(dto.getId()));
+    return dto;
+  }
 }

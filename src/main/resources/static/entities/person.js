@@ -8,6 +8,7 @@ export default (nga) => {
   ]);
   entity.creationView().fields([
     nga.field("name")
+      .validation({required: true})
   ]);
   entity.editionView().fields(entity.creationView().fields());
   return entity;

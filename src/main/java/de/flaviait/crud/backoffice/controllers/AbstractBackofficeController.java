@@ -1,24 +1,26 @@
 package de.flaviait.crud.backoffice.controllers;
 
+import de.flaviait.crud.backoffice.models.IdentifiableDTO;
 import de.flaviait.crud.backoffice.repositories.AbstractCRUDRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
 
-public abstract class AbstractBackofficeController<Resource extends Serializable> {
+abstract class AbstractBackofficeController<Resource extends IdentifiableDTO> {
 
-  protected final AbstractCRUDRepository<?, Resource> repository;
+  final AbstractCRUDRepository<?, Resource> repository;
 
-  protected AbstractBackofficeController(AbstractCRUDRepository<?, Resource> repository) {
+  AbstractBackofficeController(AbstractCRUDRepository<?, Resource> repository) {
     this.repository = repository;
   }
 
-  public List<Resource> page(Integer page, Integer pageSize, String sortOrder, String sortField) {
+  protected List<Resource> page(Integer page, Integer pageSize, String sortOrder, String sortField) {
     return repository.getPage(page, pageSize, sortField, sortOrder);
   }
 
-  public Resource get(Long id) {
+  protected Resource get(Long id) {
     Resource resource = repository.getById(id);
     if (resource == null) {
       throw new ResourceNotFoundException();
@@ -26,19 +28,38 @@ public abstract class AbstractBackofficeController<Resource extends Serializable
     return resource;
   }
 
-  public Resource update(Long id, Resource resource) {
-    return repository.update(id, resource);
+  protected ResponseEntity<Void> update(Long id, Resource resource) {
+    repository.update(id, resource);
+    return buildUpdateResponse();
   }
 
-  public Resource create(Resource resource) {
-    return repository.create(resource);
+  protected ResponseEntity<Void> create(Resource resource, String host) {
+    Resource persistedResource = repository.create(resource);
+    return buildCreateResponse(host, persistedResource);
   }
 
-  public ResponseEntity<Void> delete(Long id) {
+  protected ResponseEntity<Void> delete(Long id) {
     repository.delete(id);
-    return ResponseEntity.ok().build();
+    return buildDeleteResponse();
   }
 
-  private static class ResourceNotFoundException extends RuntimeException {
+  protected ResponseEntity<Void> buildUpdateResponse() {
+    return ResponseEntity.noContent().build();
+  }
+
+  protected ResponseEntity<Void> buildCreateResponse(String host, Resource persistedResource) {
+    return ResponseEntity.created(URI.create(getResourceLocation(persistedResource, host))).build();
+  }
+
+  protected ResponseEntity<Void> buildDeleteResponse() {
+    return ResponseEntity.noContent().build();
+  }
+
+  protected String getResourceLocation(Resource persistedResource, String host) {
+    String resourcePath = this.getClass().getAnnotation(RequestMapping.class).value()[0];
+    return host + resourcePath + "/" + persistedResource.getId();
+  }
+
+  public static class ResourceNotFoundException extends RuntimeException {
   }
 }
