@@ -2,22 +2,28 @@ package de.flaviait.crud.backoffice.controllers;
 
 import de.flaviait.crud.backoffice.models.IdentifiableDTO;
 import de.flaviait.crud.backoffice.repositories.AbstractCRUDRepository;
+import org.springframework.boot.json.BasicJsonParser;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 abstract class AbstractBackofficeController<ID, Resource extends IdentifiableDTO<ID>> {
 
   final AbstractCRUDRepository<?, ID, Resource> repository;
+  JsonParser jsonParser;
 
   AbstractBackofficeController(AbstractCRUDRepository<?, ID, Resource> repository) {
     this.repository = repository;
+    this.jsonParser = new BasicJsonParser();
   }
 
-  protected List<Resource> page(Integer page, Integer pageSize, String sortOrder, String sortField) {
-    return repository.getPage(page, pageSize, sortField, sortOrder);
+  protected List<Resource> page(Integer page, Integer pageSize, String sortOrder, String sortField, String queryString) {
+    Map<String, Object> query = queryString != null ? jsonParser.parseMap(queryString) : null;
+    return repository.getPage(page, pageSize, sortField, sortOrder, query);
   }
 
   protected Resource get(ID id) {

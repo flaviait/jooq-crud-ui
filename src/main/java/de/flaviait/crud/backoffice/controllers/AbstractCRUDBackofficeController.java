@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractCRUDBackofficeController<ID, Resource extends IdentifiableDTO<ID>> extends AbstractBackofficeController<ID, Resource> {
 
@@ -19,8 +20,9 @@ public abstract class AbstractCRUDBackofficeController<ID, Resource extends Iden
   public List<Resource> page(@RequestParam(value = "_page", defaultValue = "1") Integer page,
                              @RequestParam(value = "_perPage", defaultValue = "30") Integer pageSize,
                              @RequestParam(value = "_sortDir", defaultValue = "DESC") String sortOrder,
-                             @RequestParam(value = "_sortField", defaultValue = "id") String sortField) {
-    return super.page(page, pageSize, sortOrder, sortField);
+                             @RequestParam(value = "_sortField", defaultValue = "id") String sortField,
+                             @RequestParam(value = "_filters", required = false) String query) {
+    return super.page(page, pageSize, sortOrder, sortField, query);
   }
 
   @Override

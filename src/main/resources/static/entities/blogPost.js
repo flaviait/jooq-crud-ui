@@ -38,8 +38,8 @@ export default (nga) => {
       .sortDir("DESC")
       .remoteComplete(true, {
         refreshDelay: 200,
-        searchQuery(search){
-          return {search}
+        searchQuery(name){
+          return {name}
         }
       })
   ]);

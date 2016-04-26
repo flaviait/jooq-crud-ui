@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/crud/blogPosts")
@@ -25,8 +26,9 @@ public class BlogPostController extends AbstractCRUDBackofficeController<Long, B
   public List<BlogPostDTO> page(@RequestParam(value = "_page", defaultValue = "1") Integer page,
                                 @RequestParam(value = "_perPage", defaultValue = "30") Integer pageSize,
                                 @RequestParam(value = "_sortDir", defaultValue = "DESC") String sortOrder,
-                                @RequestParam(value = "_sortField", defaultValue = "id") String sortField) {
-    List<BlogPostDTO> dtos = super.page(page, pageSize, sortOrder, sortField);
+                                @RequestParam(value = "_sortField", defaultValue = "id") String sortField,
+                                @RequestParam(value = "_filters", required = false) String query) {
+    List<BlogPostDTO> dtos = super.page(page, pageSize, sortOrder, sortField, query);
     dtos.forEach(this::populateReaders);
     return dtos;
   }
