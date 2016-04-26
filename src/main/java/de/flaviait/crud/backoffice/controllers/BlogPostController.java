@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/crud/blogPosts")
-public class BlogPostController extends AbstractCRUDBackofficeController<BlogPostDTO> {
+public class BlogPostController extends AbstractCRUDBackofficeController<Long, BlogPostDTO> {
 
   private final BlogPostReaderRepository blogPostReaderRepository;
 

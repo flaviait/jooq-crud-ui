@@ -1,9 +1,6 @@
 package de.flaviait.crud.backoffice.repositories;
 
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.UpdatableRecord;
+import org.jooq.*;
 
 import java.util.List;
 
@@ -17,7 +14,7 @@ abstract class AbstractManyToManyRelationRepository<R extends UpdatableRecord> {
     this.table = table;
   }
 
-  List<Long> getRelated(Field<Long> parentIdField, Field<Long> childIdField, Long id) {
+  <T1, T2> List<T2> getRelated(Field<T1> parentIdField, Field<T2> childIdField, T1 id) {
     return dslContext
       .select(childIdField)
       .from(table)
@@ -25,7 +22,7 @@ abstract class AbstractManyToManyRelationRepository<R extends UpdatableRecord> {
       .fetch(childIdField);
   }
 
-  R create(Field<Long> field1, Field<Long> field2, Long id1, Long id2) {
+  <T1, T2> R create(Field<T1> field1, Field<T2> field2, T1 id1, T2 id2) {
     R record = dslContext.newRecord(table);
     record.setValue(field1, id1);
     record.setValue(field2, id2);
@@ -33,20 +30,20 @@ abstract class AbstractManyToManyRelationRepository<R extends UpdatableRecord> {
     return record;
   }
 
-  void delete(Field<Long> field1, Field<Long> field2, Long id1, Long id2) {
+  <T1, T2> void delete(Field<T1> field1, Field<T2> field2, T1 id1, T2 id2) {
     dslContext
       .deleteFrom(table)
       .where(field1.eq(id1).and(field2.eq(id2)))
       .execute();
   }
 
-  void deleteAll(Field<Long> field, Long id) {
+  <T>void deleteAll(Field<T> field, T id) {
     dslContext.deleteFrom(table).where(field.eq(id));
   }
 
-  void merge(Field<Long> parentField, Field<Long> childField, Long parentId, List<Long> newChildIds) {
+  <T1, T2> void merge(Field<T1> parentField, Field<T2> childField, T1 parentId, List<T2> newChildIds) {
     if(newChildIds != null) {
-      List<Long> oldChildIds = getRelated(parentField, childField, parentId);
+      List<T2> oldChildIds = getRelated(parentField, childField, parentId);
       oldChildIds.stream()
         .filter(childId -> !newChildIds.contains(childId))
         .forEach(childId -> delete(parentField, childField, parentId, childId));

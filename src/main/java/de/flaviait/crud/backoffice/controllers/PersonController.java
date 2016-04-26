@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/crud/persons")
-public class PersonController extends AbstractCRUDBackofficeController<PersonDTO> {
+public class PersonController extends AbstractCRUDBackofficeController<Long, PersonDTO> {
 
   @Autowired
   public PersonController(PersonRepository personRepository) {

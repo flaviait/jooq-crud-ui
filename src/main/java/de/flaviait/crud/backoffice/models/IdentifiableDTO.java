@@ -2,8 +2,8 @@ package de.flaviait.crud.backoffice.models;
 
 import java.io.Serializable;
 
-public interface IdentifiableDTO extends Serializable {
+public interface IdentifiableDTO<T> extends Serializable {
 
-  Long getId();
+  T getId();
 
 }

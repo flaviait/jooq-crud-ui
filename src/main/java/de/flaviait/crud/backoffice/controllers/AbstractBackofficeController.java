@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.net.URI;
 import java.util.List;
 
-abstract class AbstractBackofficeController<Resource extends IdentifiableDTO> {
+abstract class AbstractBackofficeController<ID, Resource extends IdentifiableDTO<ID>> {
 
-  final AbstractCRUDRepository<?, Resource> repository;
+  final AbstractCRUDRepository<?, ID, Resource> repository;
 
-  AbstractBackofficeController(AbstractCRUDRepository<?, Resource> repository) {
+  AbstractBackofficeController(AbstractCRUDRepository<?, ID, Resource> repository) {
     this.repository = repository;
   }
 
@@ -20,7 +20,7 @@ abstract class AbstractBackofficeController<Resource extends IdentifiableDTO> {
     return repository.getPage(page, pageSize, sortField, sortOrder);
   }
 
-  protected Resource get(Long id) {
+  protected Resource get(ID id) {
     Resource resource = repository.getById(id);
     if (resource == null) {
       throw new ResourceNotFoundException();
@@ -28,7 +28,7 @@ abstract class AbstractBackofficeController<Resource extends IdentifiableDTO> {
     return resource;
   }
 
-  protected ResponseEntity<Void> update(Long id, Resource resource) {
+  protected ResponseEntity<Void> update(ID id, Resource resource) {
     repository.update(id, resource);
     return buildUpdateResponse();
   }
@@ -38,7 +38,7 @@ abstract class AbstractBackofficeController<Resource extends IdentifiableDTO> {
     return buildCreateResponse(host, persistedResource);
   }
 
-  protected ResponseEntity<Void> delete(Long id) {
+  protected ResponseEntity<Void> delete(ID id) {
     repository.delete(id);
     return buildDeleteResponse();
   }

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public abstract class AbstractCRUDBackofficeController<Resource extends IdentifiableDTO> extends AbstractBackofficeController<Resource> {
+public abstract class AbstractCRUDBackofficeController<ID, Resource extends IdentifiableDTO<ID>> extends AbstractBackofficeController<ID, Resource> {
 
-  AbstractCRUDBackofficeController(AbstractCRUDRepository<?, Resource> repository) {
+  AbstractCRUDBackofficeController(AbstractCRUDRepository<?, ID, Resource> repository) {
     super(repository);
   }
 
@@ -26,7 +26,7 @@ public abstract class AbstractCRUDBackofficeController<Resource extends Identifi
   @Override
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
   @ResponseBody
-  public Resource get(@PathVariable("id") Long id) {
+  public Resource get(@PathVariable("id") ID id) {
     return super.get(id);
   }
 
@@ -40,13 +40,13 @@ public abstract class AbstractCRUDBackofficeController<Resource extends Identifi
   @Override
   @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
   @ResponseBody
-  public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody Resource dto) {
+  public ResponseEntity<Void> update(@PathVariable ID id, @RequestBody Resource dto) {
     return super.update(id, dto);
   }
 
   @Override
   @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-  public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+  public ResponseEntity<Void> delete(@PathVariable("id") ID id) {
     return super.delete(id);
   }
 

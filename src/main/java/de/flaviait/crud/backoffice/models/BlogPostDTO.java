@@ -2,7 +2,7 @@ package de.flaviait.crud.backoffice.models;
 
 import java.util.List;
 
-public class BlogPostDTO extends de.flaviait.crud.jooq.tables.pojos.BlogPost implements IdentifiableDTO {
+public class BlogPostDTO extends de.flaviait.crud.jooq.tables.pojos.BlogPost implements IdentifiableDTO<Long> {
 
   private List<Long> readers;
 
