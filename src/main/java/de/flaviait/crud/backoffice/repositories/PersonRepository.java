@@ -21,6 +21,10 @@ public class PersonRepository extends AbstractCRUDRepository<PersonRecord, Long,
 
   @Override
   protected Condition filter(Map<String, Object> filterQuery) {
-    return PERSON.NAME.likeIgnoreCase("%" + filterQuery.getOrDefault("name", "") + "%");
+    if(filterQuery.containsKey("name")) {
+      return PERSON.NAME.likeIgnoreCase("%" + filterQuery.getOrDefault("name", "") + "%");
+    } else {
+      return super.filter(filterQuery);
+    }
   }
 }
