@@ -14,6 +14,7 @@ export default (nga) => {
     nga.field("readers", "reference_many")
       .targetEntity(personEntity)
       .targetField(nga.field("name"))
+      .cssClasses("hidden-xs hidden-sm")
   ]);
   entity.creationView().fields([
     nga.field("title")
