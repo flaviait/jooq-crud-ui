@@ -28,9 +28,7 @@ export default (nga) => {
       .validation({required: true})
       .remoteComplete(true, {
         refreshDelay: 200,
-        searchQuery(search){
-          return {search}
-        }
+        searchQuery: name => ({name})
       }),
     nga.field("readers", "reference_many")
       .targetEntity(personEntity)
@@ -39,9 +37,7 @@ export default (nga) => {
       .sortDir("DESC")
       .remoteComplete(true, {
         refreshDelay: 200,
-        searchQuery(name){
-          return {name}
-        }
+        searchQuery: name => ({name})
       })
   ]);
   entity.editionView().fields(entity.creationView().fields());
